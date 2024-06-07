@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebSocket Example</title>
+</head>
+
+<body>
+    <h1>chat box</h1>
+    <form id="form">
+        <input type="text" name="message" placeholder="Enter message">
+        <button type="submit">Send</button>
+    </form>
+    <div id="message"></div>
+
+    <script type="text/javascript">
+        // Use backticks for template literals and correct the reference to window.location.host
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const url = `${protocol}//${window.location.host}/ws/socket-server/`;
+
+        // Initialize the WebSocket connection
+        const chatsocket = new WebSocket(url);
+
+        // Event handler for receiving messages
+        // Event handler for receiving messages
+
+
+        chatsocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            console.log('Data:', data);
+            if (data.type === 'chat') {
+                const message = document.getElementById('message');
+                message.insertAdjacentHTML('beforeend', `
+            <div>
+                <p>${data.message}</p>
+            </div>
+        `);
+            }
+        };
+
+
+        // Form submission event handler
+        const form = document.getElementById('form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = e.target.message.value;
+            chatsocket.send(JSON.stringify({
+                'message': message
+            }));
+            form.reset();
+        });
+
+        // Event handlers for WebSocket connection status
+        chatsocket.onopen = function (event) {
+            console.log('WebSocket is open now.');
+        };
+
+        chatsocket.onclose = function (event) {
+            console.log('WebSocket is closed now.');
+        };
+
+        chatsocket.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+    </script>
+</body>
+
+</html>
